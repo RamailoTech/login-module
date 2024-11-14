@@ -16,8 +16,7 @@ def login(request):
         response = ResponseBuilder()
         decoded_token = request.data.get("decoded_token")
 
-        breakpoint()
-        
+     
         email = decoded_token.get("email", None)
         name = decoded_token.get("name", "")
         profile=decoded_token.get("picture",None)
