@@ -9,8 +9,8 @@ class UserService:
         self.user = user
 
     @staticmethod
-    def create_user(email, name):
-        return User.objects.create(email=email, name=name)
+    def create_user(email, name,profile):
+        return User.objects.create(email=email, name=name,profile=profile)
 
     @staticmethod
     def get_user_by_email(email):
@@ -21,8 +21,12 @@ class UserService:
         return str(refresh.access_token)
 
     @classmethod
-    def login(cls, email, name):
+    def login(cls, email, name,profile):
         user = cls.get_user_by_email(email)
         if not user:
-            user = cls.create_user(email, name)
+            user = cls.create_user(email, name,profile)
         return cls(user).__generate_auth_token()
+    
+    @staticmethod
+    def get_user_by_id(user_id):
+        return get_or_none(User, id=user_id)

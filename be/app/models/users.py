@@ -17,5 +17,5 @@ class BaseModel(models.Model):
 class User(BaseModel):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=100)
-    profile = models.FileField(max_length=255, upload_to=kyc_path)
+    profile = models.URLField(max_length=255)
 
