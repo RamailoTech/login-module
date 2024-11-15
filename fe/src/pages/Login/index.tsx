@@ -1,26 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import toast from "react-hot-toast";
-// import axios from "axios";
-// import toast from "react-hot-toast";
-// import { setDoc, doc } from "firebase/firestore";  // const handleLogin = async (e: any) => {
-//   e.preventDefault();
-//   try {
-//     await signInWithEmailAndPassword(auth, email, password);
-//     console.log("User logged in Successfully");
-//     toast.success("User logged in Successfully", { position: "top-center" });
-//     navigate("/profile"); // Navigate to the profile page
-//   } catch (error) {
-//     console.error("Error logging in:", error.message);
-//     toast.error(error.message, { position: "bottom-center" });
-//   }
-// };
-
-interface LoginProps {
-  navigateTo?: string;
-}
+import axios from "axios";
+import config from "../../config/api"
+import { LoginProps, FirebaseUser, ApiResponse } from "../../interface/type";
 
 const Login = ({ navigateTo }: LoginProps) => {
   const [email, setEmail] = useState("");
@@ -31,38 +16,39 @@ const Login = ({ navigateTo }: LoginProps) => {
   const SignInWithGoogle = async () => {
     try {
       const res = await signInWithPopup(auth, googleProvider);
-      const user = res.user as { displayName?: string; accessToken?: string };
-      const firebaseToken = user?.accessToken ?? "";
-      console.log("user details", user);
-      console.log("firebase token", firebaseToken);
+      const user = res.user as FirebaseUser;
+      const firebaseToken = user.accessToken ?? "";
 
-      // const response = await axios.post(`${config.baseUrl}/accounts/login/`, {
-      //   token: firebaseToken,
-      // });
+      // Make the API request with axios 
+      const response = await axios.post<ApiResponse>(`${config.baseUrl}/v1/login`, {
+        token: firebaseToken,
+      });
 
-      // const response = await fetch(`${config.baseUrl}/accounts/login/`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     token: firebaseToken
-      //   })
-      // })
-      // const responseBody = await response.json();
-      // login();
-      // localStorage.setItem("accessToken", responseBody.data?.access_token);
-      navigate(navigateTo ?? "/profile");
+      // Access the access token from the API response
+      const accessToken = response.data?.data?.access_token;
+      localStorage.setItem("accessToken", accessToken);
+
+      // Navigate to the profile page
+      navigate("/profile");
     } catch (err) {
-      console.error(err);
-      toast.error("Sorry could not login");
+      console.error("Login error:", err);
+      toast.error("Sorry, could not log in");
     }
   };
+  const handleLogin = () => {
+    // Todo for integrate login api
+    toast.error("Sorry, could not log in");
+  }
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate(navigateTo ?? "/profile");
+    }
+  }, [navigate, navigateTo]);
 
   const handleRegister = () => {
     navigate("/register");
   };
-
   return (
     <section className="h-screen flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center my-2 mx-5 md:mx-0 md:my-0">
       <div className="md:w-1/3 max-w-sm">
@@ -95,11 +81,11 @@ const Login = ({ navigateTo }: LoginProps) => {
           </p>
         </div>
         <form
-        // onSubmit={handleLogin}
+          onSubmit={handleLogin}
         >
           <input
             className="text-sm w-full px-4 py-2 border border-solid border-gray-300 rounded"
-            type="text"
+            type="email"
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}

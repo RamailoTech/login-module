@@ -1,15 +1,20 @@
-// App.tsx
 import { Routes, Route } from "react-router-dom";
-
 import { Profile, Login, NotFound } from "./pages/index";
+import PrivateRoute from "./components/PrivetRoutes/index";
 
 const App = () => {
   return (
 
     <Routes>
-      <Route index element={<Login />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
 
